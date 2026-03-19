@@ -1,18 +1,18 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { Bookmark, Eye, Home, TableOfContents } from "lucide-react";
 import { mockNovels } from "../../constants/novels";
 import { chapters } from "../../constants/chapters";
 import Error from "../error";
-import { BookmarkContext } from "../../lib/bookmark";
+import { useBookmarkStore } from "../../lib/bookmarkStore";
 import { toast } from "sonner";
 
 const ReadChapter = () => {
   const navigate = useNavigate();
   const { NovelId, Ch } = useParams();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { bookmarks, setBookmarks } = useContext(BookmarkContext);
+  const { bookmarks, toggleBookmark } = useBookmarkStore();
 
   const novelData = mockNovels.find((novel) => novel.id.toString() === NovelId);
   const chapterData = chapters[NovelId];
@@ -28,23 +28,17 @@ const ReadChapter = () => {
   }
 
   const handleBookmark = () => {
-    const newBookmarks = { ...bookmarks };
-    if (newBookmarks[key]) {
-      delete newBookmarks[key];
-    } else {
-      newBookmarks[key] = {
-        bookId: key,
-        novelId: NovelId,
-        chapter: Ch,
-        chapterTitle: chapterContent.title,
-        novelTitle: novelData.title,
-        novelAuthor: novelData.author,
-        novelThumbnail: novelData.thumbnail,
-        bookAt: new Date().toISOString(),
-      };
-    }
+    toggleBookmark({
+      bookId: key,
+      novelId: NovelId,
+      chapter: Ch,
+      chapterTitle: chapterContent.title,
+      novelTitle: novelData.title,
+      novelAuthor: novelData.author,
+      novelThumbnail: novelData.thumbnail,
+    });
+    
     toast.success(isBookmark ? "ลบที่คั่นหน้าเรียบร้อยแล้ว" : "เพิ่มที่คั่นหน้าเรียบร้อยแล้ว");
-    setBookmarks(newBookmarks);
   };
 
   return (
