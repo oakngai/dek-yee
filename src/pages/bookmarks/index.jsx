@@ -1,32 +1,23 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import Banner from "@/components/Banner";
 import BookmarkCard from "@/components/BookmarkCard";
 import Navbar from "@/components/Navbar";
-import { BookmarkContext } from "../../lib/bookmark";
+import { useBookmarkStore } from "../../lib/bookmarkStore";
 import { toast } from "sonner";
 
 const Bookmarks = () => {
-  const { bookmarks, setBookmarks } = useContext(BookmarkContext);
-
-  const [novels, setNovels] = useState(Object.values(bookmarks));
+  const { bookmarks, removeBookmarks } = useBookmarkStore();
+  const novels = Object.values(bookmarks);
+  
   const [isEditing, setIsEditing] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // Reset selectedItems when editing mode is turned off
   if (!isEditing && selectedItems.length > 0) {
     setSelectedItems([]);
   }
 
   const deleteSelectedItems = () => {
-    const newNovels = novels.filter(
-      (novel) => !selectedItems.includes(novel.bookId),
-    );
-    const newBookmarks = { ...bookmarks };
-    selectedItems.forEach((bookId) => {
-      delete newBookmarks[bookId];
-    });
-    setBookmarks(newBookmarks);
-    setNovels(newNovels);
+    removeBookmarks(selectedItems);
     toast.success("ลบรายการที่คั่นไว้เรียบร้อยแล้ว");
     setIsEditing(false);
     setSelectedItems([]);
